@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Form Coils — ShineExplains</title>
+<style>
+:root{--bg:#f6f2ea;--ink:#232323;--mut:#6d675d;--card:#fffdf8;--ln:#e2dccf;--ac:#2d49c9;--acs:#dfe5fb;--bad:#b3362b}
+*{box-sizing:border-box}html,body{margin:0;overflow-x:hidden}
+body{background:var(--bg);color:var(--ink);font:17px/1.6 Georgia,'Times New Roman',serif;
+background-image:radial-gradient(rgba(0,0,0,.035) 1px,transparent 1px);background-size:5px 5px}
+main{max-width:1060px;margin:0 auto;padding:20px 16px 80px}
+h1{font-size:clamp(28px,5vw,44px);line-height:1.15;margin:.3em 0 .2em}
+h2{font-size:26px;margin:56px 0 12px}h3{margin:0 0 6px;font-size:20px}
+p{margin:.5em 0}.mut{color:var(--mut)}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:18px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media(max-width:780px){.row{grid-template-columns:1fr}}
+button,select{font:15px system-ui,sans-serif;min-height:44px;padding:8px 16px;border-radius:10px;border:1px solid var(--ink);background:var(--card);color:var(--ink);cursor:pointer}
+button.p{background:var(--ink);color:#fff}button:disabled{opacity:.35}
+button:focus-visible,select:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+.grid{display:grid;gap:4px;width:100%;max-width:440px;margin:auto}
+.cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px solid var(--ln);border-radius:8px;background:#fff;font:600 clamp(11px,2.6vw,17px) system-ui,sans-serif;position:relative;transition:background .3s,color .3s,transform .3s}
+.cell.c1{background:var(--acs);border-color:var(--ac)}
+.cell.c2{background:#d9d5cc;border-color:var(--ink)}
+.cell.cur{background:var(--ac);color:#fff;transform:scale(1.08)}
+.cell.cur.k2{background:var(--ink)}
+.cell.nxt{outline:3px dashed var(--bad);outline-offset:-2px}
+.cell small{position:absolute;top:1px;right:3px;font-size:9px;color:var(--mut)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font:13px system-ui;margin-top:10px;justify-content:center}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px;border:1px solid var(--ink)}
+pre{margin:0;overflow-x:auto;font:13.5px/1.55 ui-monospace,Menlo,Consolas,monospace;background:#1f1f1f;color:#eee;border-radius:10px;padding:12px}
+pre .l{display:block;padding:0 6px;border-radius:4px;white-space:pre}
+pre .new{background:#3a4aa8}pre.ex .l{cursor:pointer}pre.ex .l:hover{background:#333}pre.ex .sel{background:#3a4aa8}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.chip{font:14px system-ui;padding:4px 10px;border:1px solid var(--ln);border-radius:20px;background:#fff}
+.chip.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.say{font-size:19px}.q{border-left:4px solid var(--ac);padding-left:12px;font-style:italic}
+.yes{color:#1c7a3d;font-weight:700}.no{color:var(--bad);font-weight:700}
+.opt{display:block;width:100%;text-align:left;margin:6px 0}
+.final{background:var(--ink);color:#f6f2ea;text-align:center;padding:36px 18px;border-radius:16px;margin-top:50px}
+.final div{font-size:20px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style></head><body><main>
+
+<h1>Form Coils: interview mein pehli baar dikha toh?</h1>
+<p class="say q">“Interview mein tumhare saamne woh question aa gaya jo tumne kabhi solve nahi kara. How will you solve that question? Chalo ek question saath mein solve karte hain.”</p>
+<div class="ctl"><label for="nsel">Matrix size: </label><select id="nsel"><option value="1">n = 1 (4×4)</option><option value="2">n = 2 (8×8)</option><option value="3">n = 3 (12×12)</option></select><span class="mut" id="mnote"></span></div>
+
+<div class="row" style="margin-top:8px">
+ <div class="card"><div id="g1" class="grid"></div>
+  <div class="legend"><span><i style="background:var(--acs);border-color:var(--ac)"></i>Coil 1</span><span><i style="background:#d9d5cc"></i>Coil 2</span><span><i style="background:var(--ac)"></i>Current</span><span><i style="background:#fff;border:2px dashed var(--bad)"></i>Next candidate</span></div>
+  <div id="vwrap" hidden><p class="mut" style="text-align:center;margin:12px 0 4px">visited[ ][ ]</p><div id="gv" class="grid" style="max-width:200px"></div></div></div>
+ <div class="card"><h3 id="st"></h3><div id="sp" class="say"></div><div class="chips" id="dirs" hidden></div>
+  <pre id="sc" hidden></pre>
+  <div class="ctl"><button id="sb">Back</button><button id="sn" class="p">Next</button><span class="mut" id="sx"></span></div></div>
+</div>
+
+<h2>Code explorer: har line kyun likhi?</h2>
+<p class="mut">Kisi bhi line par click karo.</p>
+<div class="row"><pre id="ce" class="ex"></pre><div class="card" id="cw"><p class="mut">Ek line choose karo.</p></div></div>
+
+<h2>Full dry run</h2>
+<div class="row">
+ <div class="card"><div id="g2" class="grid"></div>
+  <div class="ctl" style="justify-content:center"><button id="rp" class="p">▶ Run Example</button><button id="rn">Next Step</button><button id="rr">Reset</button></div></div>
+ <div class="card" id="rw" aria-live="polite"></div>
+</div>
+<div class="card" style="margin-top:14px"><h3>Final output</h3><p id="out"></p></div>
+
+<h2>Complexity</h2>
+<div class="card">
+<p>m = 4n, toh m² = 16n². Har cell ek baar hi visit hoti hai, toh time = <b>O(m²) = O(n²)</b>.</p>
+<p>Isse faster nahi ja sakte, kyunki output mein hi saari 16n² cells return karni hain.</p>
+<p>Auxiliary space = <b>O(n²)</b> (visited). Output space = <b>O(n²)</b> (dono coils). Ye O(1) space solution nahi hai.</p></div>
+
+<h2>If I forget the code in an interview…</h2>
+<div class="card"><pre style="background:#fff;color:var(--ink);border:1px solid var(--ln)">1. Start both coils from opposite corners.
+2. Keep current position + direction for each coil.
+3. Generate the next cell.
+4. Is it inside the matrix?
+5. Is it already visited?
+6. If safe: move + mark visited.
+7. Otherwise: turn.
+8. Repeat until all cells are covered.</pre>
+<p class="mut">Question → Movement → Next cell → Inside? → Visited? → Move / Turn</p></div>
+
+<h2>Can you reconstruct the solution?</h2>
+<div id="quiz"></div>
+
+<div class="final"><h2 style="margin:0 0 12px">DON'T MEMORIZE THE CODE.</h2><p>Remember the questions:</p>
+<div>Where am I?<br>↓<br>Where do I want to go?<br>↓<br>Is it inside?<br>↓<br>Is it already used?<br>↓<br>Move or turn?</div></div>
+</main>
+<script>
+const $=s=>document.getElementById(s);
+const RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
+let m=4;const cell=(r,c)=>r*m+c+1;
+const AR=['↓','→','↑','←'],AR2=['↑','←','↓','→'];
+function grid(el,f){el.style.gridTemplateColumns=`repeat(${m},1fr)`;el.innerHTML='';
+ for(let r=0;r<m;r++)for(let c=0;c<m;c++){const d=document.createElement('div');d.className='cell';const x=f(r,c);d.className+=' '+(x.cls||'');d.textContent=x.t!==undefined?x.t:cell(r,c);if(x.s)d.innerHTML+='<small>'+x.s+'</small>';el.appendChild(d)}}
+const key=(r,c)=>r+','+c;
+// ---------- story ----------
+const CODE={
+vis:['vector<vector<bool>> vis(m, vector<bool>(m, false));'],
+state:['int r1 = 0, c1 = 0;','int r2 = m - 1, c2 = m - 1;','int d1 = 0, d2 = 0;'],
+dirs:['int dr1[4] = {1, 0, -1, 0};','int dc1[4] = {0, 1, 0, -1};','int dr2[4] = {-1, 0, 1, 0};','int dc2[4] = {0, -1, 0, 1};'],
+nxt:['int nr1 = r1 + dr1[d1];','int nc1 = c1 + dc1[d1];'],
+chk:['if (nr1 >= 0 && nr1 < m &&','    nc1 >= 0 && nc1 < m &&','    !vis[nr1][nc1]) {'],
+mv:['  r1 = nr1; c1 = nc1;','  vis[r1][c1] = true;','  coil1.push_back(r1 * m + c1 + 1);','} else {'],
+tn:['  d1 = (d1 + 1) % 4;','}'],
+start:['coil1.push_back(1); coil2.push_back(m * m);','vis[0][0] = vis[m-1][m-1] = true;'],
+loop:['while (coil1.size() + coil2.size() < m * m) {','  /* coil 1 step, then coil 2 step */','}']};
+function S(){const down=[],bot=[],up=[];
+ for(let i=0;i<m;i++)down.push([i,0]);for(let j=1;j<m-1;j++)bot.push([m-1,j]);for(let i=m-2;i>=1;i--)up.push([i,m-2]);
+ return{down,bot,up}}
+const CH=[
+{t:'Question',p:()=>`Ek ${m}×${m} matrix hai, numbers 1 se ${m*m}. Fill kaise hua? <b>Left → right, top → bottom</b>, simple row-wise. Spiral sirf coil ka hai, matrix ka nahi. Coil 1 top-left se Down → Right → Up → Left. Coil 2 bottom-right se Up → Left → Down → Right.`,v:()=>({})},
+{t:'Coil 1: pehla move',p:()=>`Ye top-left (1) se start kar rahi hai. Naturally iska first move kya hoga? Down. ${cell(0,0)} → ${cell(1,0)} → … → ${cell(m-1,0)}.`,v:()=>{const s=S();return{c1:s.down,cur:[m-1,0]}}},
+{t:'Neeche jaayenge toh?',p:()=>`${cell(m-1,0)} par ho. Neeche jaayenge toh matrix ke <b>bahar</b> chale jayenge. Toh kya karenge? Turn: Right. ${cell(m-1,0)} → ${cell(m-1,1)} → … → ${cell(m-1,m-2)}.`,v:()=>{const s=S();return{c1:s.down.concat(s.bot),cur:[m-1,m-2]}}},
+{t:'Wait… 15 → 16?',p:()=>`Ab ${cell(m-1,m-2)} se Right jaana hai: ${cell(m-1,m-1)}. Wait: ${cell(m-1,m-1)} matrix ke <b>andar</b> hai, bahar nahi. But ${cell(m-1,m-1)} par toh Coil 2 start hoti hai. Wo already occupied hai. Toh hum wahan nahi ja sakte.`,v:()=>{const s=S();return{c1:s.down.concat(s.bot),c2:[[m-1,m-1]],cur:[m-1,m-2],nxt:[m-1,m-1]}}},
+{t:'Pehli key condition',p:()=>`Toh ek cheez obvious ho rahi hai. Move karne se pehle 2 sawaal: <b>(1)</b> Next cell matrix ke andar hai? <b>(2)</b> Next cell unused hai? Dono YES → MOVE. Warna → TURN.`,v:()=>{const s=S();return{c1:s.down.concat(s.bot),c2:[[m-1,m-1]],cur:[m-1,m-2],nxt:[m-1,m-1]}}},
+{t:'Toh humein ye yaad rakhna padega…',p:()=>`Acha, humein ye information maintain karni padegi ki kaun si cell use ho chuki hai. Naam: <b>visited[ ][ ]</b>. Dekho, Coil 1 ke cells mark hue, aur ${cell(m-1,m-1)} Coil 2 ne mark kiya. Isliye ${cell(m-1,m-2)} → ${cell(m-1,m-1)} par <code>vis[${m-1}][${m-1}] == true</code>. Visited <b>dono coils ke liye common</b> honi chahiye.`,code:'vis',showV:1,v:()=>{const s=S();return{c1:s.down.concat(s.bot),c2:[[m-1,m-1]],cur:[m-1,m-2],nxt:[m-1,m-1]}}},
+{t:'Har coil ka state',p:()=>`Har step par actually kya information chahiye? Current row, current column, current direction. Coil 1: r1, c1, d1 (start (0,0), Down). Coil 2: r2, c2, d2 (start (m-1,m-1), Up). Logic same hai, bas start position aur direction alag.`,code:'state',showV:1,v:()=>({c1:[[0,0]],c2:[[m-1,m-1]],cur:[0,0]})},
+{t:'Direction arrays',p:()=>`Direction ko number bana do. Coil 1: 0=Down, 1=Right, 2=Up, 3=Left. Coil 2: 0=Up, 1=Left, 2=Down, 3=Right. dr, dc batate hain ki row aur column kitna badlegi.`,code:'dirs',showV:1,dirs:1,v:()=>({})},
+{t:'Next cell nikaalo',p:()=>`Current cell se ek step aage. Row mein direction ka row-change add, column mein column-change. Example: (${m-2},0) Down → nr = ${m-2}+1 = ${m-1}, nc = 0. Phir (${m-1},0) Down → nr = ${m}. ${m} outside hai, toh turn.`,code:'nxt',showV:1,v:()=>({c1:S().down,cur:[m-1,0]})},
+{t:'Validity check',p:()=>`Condition step by step: nr ≥ 0, nr &lt; m, nc ≥ 0, nc &lt; m. Inside bhi hona chahiye, aur <code>!vis[nr][nc]</code> yaani already visited bhi nahi hona chahiye.`,code:'chk',showV:1,v:()=>({})},
+{t:'Move branch',p:()=>`Agar safe hai toh current position ko next position bana do. Jis cell par aaye, use turant visited mark karo. Aur coil mein value push: matrix row-wise filled hai, toh <code>matrix[row][col] = row*m + col + 1</code>.`,code:'mv',showV:1,v:()=>({})},
+{t:'Turn branch',p:()=>`Warna next direction. 0→1, 1→2, 2→3, aur 3→0. 4 directions hain, 3 ke baad phir 0, isliye <code>% 4</code>.`,code:'tn',showV:1,dirs:1,v:()=>({})},
+{t:'Dono coils, same logic',p:()=>`Coil 1 aur Coil 2: current position, current direction, next cell, check, move/turn. Logic same hai, sirf state alag. Aur visited common. Ab dono ek ek step baari-baari chalayenge.`,showV:1,v:()=>({c1:[[0,0]],c2:[[m-1,m-1]]})},
+{t:'Starting cells',p:()=>`Dono coils already apne starting cells par khadi hain, toh ye cells bhi used hain. Loop se pehle inhe push aur mark karo.`,code:'start',showV:1,v:()=>({c1:[[0,0]],c2:[[m-1,m-1]]})},
+{t:'Kab tak chalega?',p:()=>`Total cells = m*m = ${m*m}. Har valid move ek nayi cell add karta hai. Jab coil1.size() + coil2.size() == m*m, saari cells cover. Toh loop tab tak chale jab tak sum &lt; m*m.`,code:'loop',showV:1,v:()=>({})}
+];
+let si=0,dti=null;
+function story(){const c=CH[si];$('st').textContent=c.t;$('sp').innerHTML=c.p();
+ const v=c.v(),own=new Map();(v.c1||[]).forEach(p=>own.set(key(...p),1));(v.c2||[]).forEach(p=>own.set(key(...p),2));
+ grid($('g1'),(r,k)=>{const o=own.get(key(r,k));let cls=o?'c'+o:'';if(v.cur&&v.cur[0]==r&&v.cur[1]==k)cls+=' cur';if(v.nxt&&v.nxt[0]==r&&v.nxt[1]==k)cls+=' nxt';return{cls}});
+ $('vwrap').hidden=!c.showV;
+ if(c.showV)grid($('gv'),(r,k)=>({t:own.has(key(r,k))?'●':'·',cls:own.has(key(r,k))?'c'+own.get(key(r,k)):''}));
+ const pre=$('sc');pre.hidden=true;
+ if(c.code){const names=Object.keys(CODE),upto=names.indexOf(c.code);pre.hidden=false;pre.innerHTML='';
+  names.slice(0,upto+1).forEach(n=>CODE[n].forEach(l=>{const s=document.createElement('span');s.className='l'+(n===c.code?' new':'');s.textContent=l;pre.appendChild(s)}))}
+ clearInterval(dti);const dw=$('dirs');dw.hidden=!c.dirs;
+ if(c.dirs){let i=0;const draw=()=>{dw.innerHTML='<span class="chip">Coil 1:</span>'+AR.map((a,j)=>`<span class="chip ${j==i?'on':''}">${j} ${a}</span>`).join('')+'<span class="chip">Coil 2:</span>'+AR2.map((a,j)=>`<span class="chip ${j==i?'on':''}">${j} ${a}</span>`).join('');};draw();
+  if(!RM)dti=setInterval(()=>{i=(i+1)%4;draw()},1000)}
+ $('sb').disabled=si==0;$('sn').disabled=si==CH.length-1;$('sx').textContent=(si+1)+' / '+CH.length}
+$('sb').onclick=()=>{si--;story()};$('sn').onclick=()=>{si++;story()};
+// ---------- code explorer ----------
+const LINES=[
+['class Solution { public: vector<vector<int>> formCoils(int n) {','Function shuru.','Humein dono coils return karni hain.','Problem ka output: 2 coils.'],
+['int m = 4 * n;','Matrix ka side nikalta hai.','Matrix 4n × 4n hai.','Problem statement.'],
+['int dr1[4]={1,0,-1,0}, dc1[4]={0,1,0,-1};','Coil 1: Down, Right, Up, Left.','Next cell nikalne ke liye row/col change chahiye.','Coil 1 ka order Down → Right → Up → Left.'],
+['int dr2[4]={-1,0,1,0}, dc2[4]={0,-1,0,1};','Coil 2: Up, Left, Down, Right.','Coil 2 ka order alag hai, par logic same.','Coil 2 opposite order mein chalti hai.'],
+['vector<vector<bool>> vis(m, vector<bool>(m,false));','Batata hai kaun si cell use ho chuki.','Dono coils ko common memory chahiye.','15 ne 16 par jaana chaha, par 16 occupied thi.'],
+['int r1=0,c1=0; int r2=m-1,c2=m-1;','Dono coils ki starting positions.','Har step par current row/col chahiye.','Coil 1 top-left se, Coil 2 bottom-right se.'],
+['int d1=0, d2=0;','Dono ki starting direction index.','Turn karne ke liye current direction yaad rakhni hai.','Coil 1 Down se start, Coil 2 Up se; dono ke arrays mein index 0.'],
+['coil1.push_back(1); coil2.push_back(m*m);','Starting values coils mein daalta hai.','Coils apne start cells par pehle se khadi hain.','1 top-left, m*m bottom-right.'],
+['vis[r1][c1]=true; vis[r2][c2]=true;','Starting cells visited mark.','Warna Coil 1 aakar 16 par jaa sakti hai.','Start cells bhi used hain.'],
+['while (coil1.size()+coil2.size() < m*m) {','Jab tak saari cells cover na ho jaayein.','Har valid move 1 nayi cell add karta hai.','Total cells = m*m.'],
+['int nr1 = r1+dr1[d1]; int nc1 = c1+dc1[d1];','Coil 1 ki next cell.','Pehle dekhna hai kahan jaana hai.','Current cell se ek step direction mein.'],
+['if (nr1>=0 && nr1<m && nc1>=0 && nc1<m && !vis[nr1][nc1]) {','Inside + unused check.','Sirf boundary kaafi nahi hai.','13 → neeche bahar; 15 → 16 inside par visited.'],
+['r1=nr1; c1=nc1; coil1.push_back(r1*m+c1+1); vis[r1][c1]=true;','Move, value push, mark visited.','Value row-wise fill ke formula se aati hai.','Matrix row-wise filled hai.'],
+['} else { d1 = (d1+1) % 4; }','Next direction par turn.','Boundary ya occupied cell aayi; 3 ke baad 0 chahiye.','Down → Right → Up → Left → Down.'],
+['/* same block for coil 2 with nr2, nc2, d2 */','Coil 2 ke liye same logic.','Logic same hai, sirf state alag.','Dono coils parallel chalti hain.'],
+['} return {coil1, coil2}; } };','Dono coils return.','Problem output.','Question mein 2 coils maange gaye.']];
+LINES.forEach((l,i)=>{const s=document.createElement('span');s.className='l';s.tabIndex=0;s.textContent=l[0];
+ const pick=()=>{document.querySelectorAll('#ce .l').forEach(x=>x.classList.remove('sel'));s.classList.add('sel');
+  $('cw').innerHTML=`<h3>Kya karti hai</h3><p>${l[1]}</p><h3>Kyun chahiye</h3><p>${l[2]}</p><h3>Kis observation se aayi</h3><p>${l[3]}</p>`};
+ s.onclick=pick;s.onkeydown=e=>{if(e.key=='Enter')pick()};$('ce').appendChild(s)});
+// ---------- dry run ----------
+function sim(){const vis=Array.from({length:m},()=>Array(m).fill(0));const P=[[0,0],[m-1,m-1]],D=[0,0],R=[[1,0,-1,0],[-1,0,1,0]],C=[[0,1,0,-1],[0,-1,0,1]];
+ const co=[[1],[m*m]],ev=[];vis[0][0]=1;vis[m-1][m-1]=2;
+ while(co[0].length+co[1].length<m*m)for(let w=0;w<2;w++){const[r,c]=P[w],d=D[w],nr=r+R[w][d],nc=c+C[w][d];
+  const ins=nr>=0&&nr<m&&nc>=0&&nc<m,used=ins&&vis[nr][nc]>0,ok=ins&&!used;
+  ev.push({w,r,c,d,nr,nc,ins,used,ok});
+  if(ok){P[w]=[nr,nc];vis[nr][nc]=w+1;co[w].push(nr*m+nc+1)}else D[w]=(d+1)%4}
+ return{ev,co}}
+let SM,ri=0,rt=null;
+function run(){const own=Array.from({length:m},()=>Array(m).fill(0));own[0][0]=1;own[m-1][m-1]=2;
+ const pos=[[0,0],[m-1,m-1]];let e=null;
+ for(let i=0;i<ri;i++){e=SM.ev[i];if(e.ok){own[e.nr][e.nc]=e.w+1;pos[e.w]=[e.nr,e.nc]}}
+ const nx=ri<SM.ev.length?SM.ev[ri]:null;
+ grid($('g2'),(r,c)=>{let cls=own[r][c]?'c'+own[r][c]:'';pos.forEach((p,w)=>{if(p[0]==r&&p[1]==c)cls+=' cur'+(w?' k2':'')});if(nx&&nx.ins&&nx.nr==r&&nx.nc==c)cls+=' nxt';return{cls}});
+ if(!nx){$('rw').innerHTML='<h3>Done ✓</h3><p>Saari cells cover ho gayi.</p>';
+  $('out').innerHTML='<b style="color:var(--ac)">Coil 1:</b> '+SM.co[0].join(' ')+'<br><b>Coil 2:</b> '+SM.co[1].join(' ');return}
+ const A=nx.w?AR2:AR,nm=nx.w?'Coil 2':'Coil 1',cv=cell(nx.r,nx.c);
+ $('rw').innerHTML=`<h3>${nm} at ${cv}</h3><p>Direction: ${A[nx.d]} (d=${nx.d})<br>Next: ${nx.ins?cell(nx.nr,nx.nc):'outside ('+nx.nr+','+nx.nc+')'}</p>
+ <p>Inside matrix? <span class="${nx.ins?'yes':'no'}">${nx.ins?'YES':'NO'}</span><br>Visited? <span class="${nx.used?'no':'yes'}">${nx.ins?(nx.used?'YES':'NO'):'—'}</span></p>
+ <p><b>${nx.ok?'→ MOVE':'→ TURN to '+A[(nx.d+1)%4]}</b></p><p class="mut">Step ${ri+1} / ${SM.ev.length}</p>`;
+ $('out').textContent='Run complete hone par yahan dono coils dikhengi.'}
+function stop(){clearInterval(rt);rt=null;$('rp').textContent='▶ Run Example'}
+$('rp').onclick=()=>{if(rt){stop();return}$('rp').textContent='⏸ Pause';
+ if(ri>=SM.ev.length)ri=0;rt=setInterval(()=>{if(ri>=SM.ev.length){stop();return}ri++;run()},RM?1500:1300)};
+$('rn').onclick=()=>{stop();if(ri<SM.ev.length){ri++;run()}};
+$('rr').onclick=()=>{stop();ri=0;run()};
+// ---------- quiz ----------
+const QZ=[
+{q:'Current = 15, Direction = Right, Next = 16. Kya hoga?',a:1,w:'16 inside matrix hai, but already visited (Coil 2 ne le li).'},
+{q:'Current = 13, Direction = Down. Kya hoga?',a:1,w:'Next cell matrix ke bahar hai.'},
+{q:'Current = 14, Direction = Right. Kya hoga?',a:0,w:'Next = 15: inside + unused, toh move.'}];
+QZ.forEach(z=>{const d=document.createElement('div');d.className='card';d.style.marginBottom='10px';
+ d.innerHTML=`<p><b>${z.q}</b></p>`;
+ ['A. Move','B. Turn','C. Stop'].forEach((o,i)=>{const b=document.createElement('button');b.className='opt';b.textContent=o;
+  b.onclick=()=>{const f=d.querySelector('.fb');if(f)f.remove();const p=document.createElement('p');p.className='fb';
+   p.innerHTML=i==z.a?`<span class="yes">Sahi!</span> ${z.w}`:`<span class="no">Phir se socho:</span> pehle inside check, phir visited check.`;d.appendChild(p)};d.appendChild(b)});
+ $('quiz').appendChild(d)});
+// ---------- init ----------
+function init(){m=4*parseInt($('nsel').value);$('mnote').textContent='m = '+m;si=0;story();SM=sim();stop();ri=0;run()}
+$('nsel').onchange=init;init();
+</script></body></html>
